@@ -70,15 +70,19 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 
 	@Override
 	public List<TimeClockingDetails> getTimeClockingDetailsByDate(TimeClockingDetails timeClockingDetails) {
+		Date date = timeClockingDetails.getEndDate();
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.add(Calendar.DAY_OF_YEAR, 1);
+		timeClockingDetails.setEndDate(new java.sql.Date(calendar.getTimeInMillis()));
+		System.out.println(timeClockingDetails.getEndDate()+"**********");
 		return timeClockingRepository.getTimeClockingDetailsByDate(timeClockingDetails.getUserName(),
 				timeClockingDetails.getStartDate(), timeClockingDetails.getEndDate());
 	}
 
 	@Override
 	public List<TimeClockingDetails> calculateWagesByDateRange(TimeClockingDetails timeClockingDetails) {
-		List<TimeClockingDetails> timeClockingDetailsRangeList = timeClockingRepository.getTimeClockingDetailsByDate(
-				timeClockingDetails.getUserName(), timeClockingDetails.getStartDate(),
-				timeClockingDetails.getEndDate());
+		List<TimeClockingDetails> timeClockingDetailsRangeList = getTimeClockingDetailsByDate(timeClockingDetails);
 		int totalEffortsInMinutes;
 		for (TimeClockingDetails tcd : timeClockingDetailsRangeList) {
 			totalEffortsInMinutes = timeToMinutes(tcd.getTotalHoursWorked());

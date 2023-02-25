@@ -110,7 +110,7 @@ public class TimeClockingContoller {
 		  byte[] pdfBytes =  timeClockingService.generatePDFReport(timeClcokingDetails).toByteArray();
 		    HttpHeaders headers = new HttpHeaders();
 		    headers.setContentType(MediaType.APPLICATION_PDF);
-		    headers.setContentDisposition(ContentDisposition.builder("attachment").filename("report.pdf").build());
+		    headers.setContentDisposition(ContentDisposition.builder("inline").filename("report.pdf").build());
 		    return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
 	    }
 }
