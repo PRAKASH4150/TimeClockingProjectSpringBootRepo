@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,7 +28,7 @@ import com.tracking.timeclocking.service.TimeClockingUserService;
 
 @RestController
 @RequestMapping("/timeclocking")
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = {"http://localhost:4200","http://timeclcokingapplicationftnd-env.eba-wd3dqwjn.us-east-1.elasticbeanstalk.com/"})
 public class TimeClockingContoller {
 	
 	@Autowired
@@ -74,6 +75,14 @@ public class TimeClockingContoller {
 		
 	}
 	
+	@PostMapping("/deletebyid")
+	public ResponseEntity<TimeClockingDetails> deleteRecordById(@RequestBody TimeClockingDetails timeClcokingDetails)
+	{
+		TimeClockingDetails timeClockingDetailsOutput=timeClockingService.deleteRecordById(timeClcokingDetails);
+		
+			return new ResponseEntity<>(timeClockingDetailsOutput,new HttpHeaders(),HttpStatus.OK);	
+	}
+	
 	@PostMapping("/getbydate")
 	public ResponseEntity<List<TimeClockingDetails>> getTimeClockingDetailsByDate(@RequestBody TimeClockingDetails timeClcokingDetails)
 	{
@@ -113,4 +122,11 @@ public class TimeClockingContoller {
 		    headers.setContentDisposition(ContentDisposition.builder("inline").filename("report.pdf").build());
 		    return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
 	    }
+	    
+	    @GetMapping("/test")
+		public String testEndPoint()
+		{
+			return "It is working!!";
+		}
+	   
 }

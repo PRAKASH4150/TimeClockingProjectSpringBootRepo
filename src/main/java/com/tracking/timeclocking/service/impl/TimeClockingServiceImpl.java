@@ -42,15 +42,8 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 
 	@Override
 	public TimeClockingDetails insertTimeClockDetails(TimeClockingDetails timeClockingDetails) {
-
-		Date date = timeClockingDetails.getDateWorked();
+		Date date = new Date(timeClockingDetails.getDateWorked().getTime());
 		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		calendar.add(Calendar.DAY_OF_YEAR, 1);
-		timeClockingDetails.setDateWorked(new java.sql.Date(calendar.getTimeInMillis()));
-
-		date = new Date(timeClockingDetails.getDateWorked().getTime());
-		calendar = Calendar.getInstance();
 		calendar.setTime(date);
 		timeClockingDetails
 				.setDayWorked(calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
@@ -70,12 +63,6 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 
 	@Override
 	public List<TimeClockingDetails> getTimeClockingDetailsByDate(TimeClockingDetails timeClockingDetails) {
-		Date date = timeClockingDetails.getEndDate();
-		Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		calendar.add(Calendar.DAY_OF_YEAR, 1);
-		timeClockingDetails.setEndDate(new java.sql.Date(calendar.getTimeInMillis()));
-		System.out.println(timeClockingDetails.getEndDate()+"**********");
 		return timeClockingRepository.getTimeClockingDetailsByDate(timeClockingDetails.getUserName(),
 				timeClockingDetails.getStartDate(), timeClockingDetails.getEndDate());
 	}
@@ -91,6 +78,13 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 		}
 		return timeClockingDetailsRangeList;
 	}
+	
+	@Override
+	public TimeClockingDetails deleteRecordById(TimeClockingDetails timeClockingDetails) {
+		timeClockingRepository.deleteById(timeClockingDetails.getSerialNo());
+		return timeClockingDetails;
+	}
+
 
 	@Override
 	public ByteArrayOutputStream generatePDFReport(TimeClockingDetails timeClockingDetails) {
@@ -155,7 +149,5 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 	public String printDashes() {
 		return "----------------------------------------------------------------------------------------------------------------------------------------------";
 	}
-
-
 
 }
