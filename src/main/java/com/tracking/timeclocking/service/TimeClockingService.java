@@ -15,6 +15,7 @@ public interface TimeClockingService {
 	public List<TimeClockingDetails> calculateWagesByDateRange(TimeClockingDetails timeClockingDetails);
 	public TimeClockingDetails deleteRecordById(TimeClockingDetails timeClockingDetails); 
 	public ByteArrayOutputStream generatePDFReport(TimeClockingDetails timeClockingDetails);
+	public boolean emailPDFReport(TimeClockingDetails timeClockingDetails);
 	public String printDashes();
 	public int timeToMinutes(Time time);
 }

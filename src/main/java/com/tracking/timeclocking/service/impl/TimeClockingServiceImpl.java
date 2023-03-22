@@ -26,14 +26,26 @@ import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.tracking.timeclocking.entity.TimeClockingDetails;
+import com.tracking.timeclocking.entity.TimeClockingUserDetails;
 import com.tracking.timeclocking.repository.TimeClockingRepository;
+import com.tracking.timeclocking.repository.TimeClockingUserRepository;
 import com.tracking.timeclocking.service.TimeClockingService;
+import com.tracking.timeclocking.util.EmailService;
 
 @Service
 public class TimeClockingServiceImpl implements TimeClockingService {
 
 	@Autowired
 	private TimeClockingRepository timeClockingRepository;
+	
+	@Autowired
+	private TimeClockingUserRepository timeClockingUserRepository;
+	
+	
+	
+	@Autowired
+    private EmailService emailService;
+
 	@Override
 	public List<TimeClockingDetails> getAllTimeClockRecords() {
 
@@ -130,6 +142,7 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 			document.add(table);
 			document.add(new Paragraph(StringUtils.repeat(" ", 60) + "*****END OF REPORT*****", headerFont));
 			document.close();
+					
 		} catch (Exception e) {
 			System.out.println("Error generating PDF: " + e.getMessage());
 		}
@@ -137,6 +150,15 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 		return baos;
 
 	}
+	
+	@Override
+	public boolean emailPDFReport(TimeClockingDetails timeClockingDetails) {
+		TimeClockingUserDetails timeClockingUserDetailsObject=timeClockingUserRepository.chcekForDuplicateUsers(timeClockingDetails.getUserName()).get(0);
+		emailService.sendEmailWithAttachment(timeClockingUserDetailsObject.getEmail(),"Your Wage Report","Hi "+timeClockingUserDetailsObject.getUserName()+",\n\nPlease find your wage report for the period specified.\nThanks & Regards,\n\nAdministrator.",generatePDFReport(timeClockingDetails),"WageReport.pdf");
+		return true;	
+	}
+
+	
 	public int timeToMinutes(Time time) {
 		LocalTime localTime = time.toLocalTime();
 		int hours = localTime.getHour();
@@ -149,5 +171,6 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 	public String printDashes() {
 		return "----------------------------------------------------------------------------------------------------------------------------------------------";
 	}
+
 
 }
