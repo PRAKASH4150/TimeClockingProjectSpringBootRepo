@@ -25,22 +25,29 @@ public class TimeClockingUserDetails {
 	@Column(name="password")
 	private String password;
 	
+	@Column(name="otp")
+	private String otp;
+	
 	@Transient
 	private boolean userExistanceFlag;
 	
 	@Transient
 	private boolean authenticationFlag;
-
 	
-	public TimeClockingUserDetails(Integer serialNo, String email, String userName, String password,
-			boolean userExistanceFlag, boolean authenticationFlag) {
+	@Transient
+	private String errorMsg;
+
+	public TimeClockingUserDetails(Integer serialNo, String email, String userName, String password, String otp,
+			boolean userExistanceFlag, boolean authenticationFlag, String errorMsg) {
 		super();
 		this.serialNo = serialNo;
 		this.email = email;
 		this.userName = userName;
 		this.password = password;
+		this.otp = otp;
 		this.userExistanceFlag = userExistanceFlag;
 		this.authenticationFlag = authenticationFlag;
+		this.errorMsg = errorMsg;
 	}
 
 	public TimeClockingUserDetails() {
@@ -79,6 +86,15 @@ public class TimeClockingUserDetails {
 		this.password = password;
 	}
 
+	
+	public String getOtp() {
+		return otp;
+	}
+
+	public void setOtp(String otp) {
+		this.otp = otp;
+	}
+
 	public boolean isUserExistanceFlag() {
 		return userExistanceFlag;
 	}
@@ -94,5 +110,15 @@ public class TimeClockingUserDetails {
 	public void setAuthenticationFlag(boolean authenticationFlag) {
 		this.authenticationFlag = authenticationFlag;
 	}
+
+	public String getErrorMsg() {
+		return errorMsg;
+	}
+
+	public void setErrorMsg(String errorMsg) {
+		this.errorMsg = errorMsg;
+	}
+	
+	
 	
 }

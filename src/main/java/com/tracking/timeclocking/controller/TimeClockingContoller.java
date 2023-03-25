@@ -47,6 +47,26 @@ public class TimeClockingContoller {
 		return new ResponseEntity<>(timeClockingUserService.authenticateUser(timeClockingUserDetails),new HttpHeaders(),HttpStatus.OK);
 	}
 	
+	@PostMapping("/checkuserexistance")
+	public ResponseEntity<TimeClockingUserDetails> checkUserExistence(@RequestBody TimeClockingUserDetails timeClockingUserDetails)
+	{
+		return new ResponseEntity<>(timeClockingUserService.checkUserExistence(timeClockingUserDetails),new HttpHeaders(),HttpStatus.OK);
+	}
+	
+	@PostMapping("/verifyotp")
+	public ResponseEntity<TimeClockingUserDetails> verifyOtp(@RequestBody TimeClockingUserDetails timeClockingUserDetails)
+	{
+		return new ResponseEntity<>(timeClockingUserService.verifyOtp(timeClockingUserDetails),new HttpHeaders(),HttpStatus.OK);
+		
+	}
+	
+	@PostMapping("/updatePassword")
+	public ResponseEntity<TimeClockingUserDetails> updatePassword(@RequestBody TimeClockingUserDetails timeClockingUserDetails)
+	{
+		return new ResponseEntity<>(timeClockingUserService.updatePassword(timeClockingUserDetails),new HttpHeaders(),HttpStatus.OK);
+		
+	}
+	
 	@GetMapping("/getallrecs")
 	public ResponseEntity<List<TimeClockingDetails>> getAllTimeClockRecords()
 	{
@@ -73,6 +93,8 @@ public class TimeClockingContoller {
 		}
 		
 	}
+	
+	
 	
 	@PostMapping("/deletebyid")
 	public ResponseEntity<TimeClockingDetails> deleteRecordById(@RequestBody TimeClockingDetails timeClcokingDetails)
