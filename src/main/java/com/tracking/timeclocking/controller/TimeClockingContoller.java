@@ -94,6 +94,13 @@ public class TimeClockingContoller {
 		
 	}
 	
+	@PostMapping("/updatebyid")
+	public ResponseEntity<TimeClockingDetails> updateTimeEntryDetails(@RequestBody TimeClockingDetails timeClcokingDetails)
+	{
+		TimeClockingDetails timeClockingDetailsOutput=timeClockingService.updateTimeEntryDetails(timeClcokingDetails);
+		
+			return new ResponseEntity<>(timeClockingDetailsOutput,new HttpHeaders(),HttpStatus.OK);	
+	}
 	
 	
 	@PostMapping("/deletebyid")

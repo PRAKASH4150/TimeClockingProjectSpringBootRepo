@@ -13,9 +13,11 @@ public interface TimeClockingService {
 	public List<TimeClockingDetails> getTimeClockingDetailsByUserName(TimeClockingDetails timeClockingDetails);
 	public List<TimeClockingDetails> getTimeClockingDetailsByDate(TimeClockingDetails timeClockingDetails);
 	public List<TimeClockingDetails> calculateWagesByDateRange(TimeClockingDetails timeClockingDetails);
+	public TimeClockingDetails updateTimeEntryDetails(TimeClockingDetails timeClockingDetails);
 	public TimeClockingDetails deleteRecordById(TimeClockingDetails timeClockingDetails); 
 	public ByteArrayOutputStream generatePDFReport(TimeClockingDetails timeClockingDetails);
 	public boolean emailPDFReport(TimeClockingDetails timeClockingDetails);
+	public void generateWeeklyScheduledReport();
 	public String printDashes();
 	public int timeToMinutes(Time time);
 }

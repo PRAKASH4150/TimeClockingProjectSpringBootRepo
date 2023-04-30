@@ -29,5 +29,6 @@ public interface TimeClockingUserRepository extends JpaRepository<TimeClockingUs
 	 @Modifying
 	 @Query("UPDATE TimeClockingUserDetails tcud SET tcud.password=:password WHERE tcud.userName=:userName and tcud.email=:email")
 	    void updatePassword(@Param("password") String password,@Param("userName") String userName,@Param("email") String email);
+	 
 
 }

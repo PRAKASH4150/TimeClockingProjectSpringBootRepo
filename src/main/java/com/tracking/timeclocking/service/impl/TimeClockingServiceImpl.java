@@ -3,6 +3,7 @@ package com.tracking.timeclocking.service.impl;
 import java.io.ByteArrayOutputStream;
 import java.sql.Date;
 import java.sql.Time;
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -12,7 +13,9 @@ import java.util.Locale;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
@@ -33,18 +36,17 @@ import com.tracking.timeclocking.service.TimeClockingService;
 import com.tracking.timeclocking.util.EmailService;
 
 @Service
+@Transactional
 public class TimeClockingServiceImpl implements TimeClockingService {
 
 	@Autowired
 	private TimeClockingRepository timeClockingRepository;
-	
+
 	@Autowired
 	private TimeClockingUserRepository timeClockingUserRepository;
-	
-	
-	
+
 	@Autowired
-    private EmailService emailService;
+	private EmailService emailService;
 
 	@Override
 	public List<TimeClockingDetails> getAllTimeClockRecords() {
@@ -90,19 +92,45 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 		}
 		return timeClockingDetailsRangeList;
 	}
-	
+
 	@Override
 	public TimeClockingDetails deleteRecordById(TimeClockingDetails timeClockingDetails) {
 		timeClockingRepository.deleteById(timeClockingDetails.getSerialNo());
 		return timeClockingDetails;
 	}
 
+	@Override
+	public TimeClockingDetails updateTimeEntryDetails(TimeClockingDetails timeClockingDetails) {
+		
+	    Calendar cal = Calendar.getInstance();
+	    cal.setTime(timeClockingDetails.getDateWorked());
+	    cal.add(Calendar.DAY_OF_YEAR, 1);
+	    java.util.Date utilDate = cal.getTime();
+        java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+	    timeClockingDetails.setDateWorked(sqlDate);
+	       
+		Date date = new Date(timeClockingDetails.getDateWorked().getTime());
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		timeClockingDetails
+				.setDayWorked(calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault()));
+
+		Duration duration = Duration.between(timeClockingDetails.getCheckIn().toLocalTime(),
+				timeClockingDetails.getCheckOut().toLocalTime());
+		timeClockingDetails.setTotalHoursWorked(Time.valueOf(String.format("%02d:%02d:00", duration.toHours(),
+				duration.minusHours(duration.toHours()).toMinutes())));
+		timeClockingRepository.updateUserNameById(timeClockingDetails.getDateWorked(),
+				timeClockingDetails.getDayWorked(), timeClockingDetails.getCheckIn(), timeClockingDetails.getCheckOut(),
+				timeClockingDetails.getLocation(),timeClockingDetails.getTotalHoursWorked(), timeClockingDetails.getSerialNo());
+		return timeClockingDetails;
+	}
 
 	@Override
 	public ByteArrayOutputStream generatePDFReport(TimeClockingDetails timeClockingDetails) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		try {
 			List<TimeClockingDetails> timeClockingDetailsRangeList = calculateWagesByDateRange(timeClockingDetails);
+			double totalWageAmount = 0;
 			Document document = new Document(PageSize.A4);
 			Font headerFont = FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11, BaseColor.BLUE);
 			Font bodyFont = FontFactory.getFont(FontFactory.HELVETICA, 11, BaseColor.BLUE);
@@ -138,11 +166,13 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 				table.addCell(new PdfPCell(new Phrase(tcd.getLocation() + "", bodyFont)));
 				table.addCell(new PdfPCell(new Phrase(tcd.getTotalHoursWorked() + "", bodyFont)));
 				table.addCell(new PdfPCell(new Phrase(tcd.getTotalWageAmount() + "", bodyFont)));
+				totalWageAmount = totalWageAmount + tcd.getTotalWageAmount();
 			}
 			document.add(table);
+			document.add(new Paragraph(StringUtils.repeat(" ", 130) + "Total Wage: $" + totalWageAmount, bodyFont));
 			document.add(new Paragraph(StringUtils.repeat(" ", 60) + "*****END OF REPORT*****", headerFont));
 			document.close();
-					
+
 		} catch (Exception e) {
 			System.out.println("Error generating PDF: " + e.getMessage());
 		}
@@ -150,15 +180,39 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 		return baos;
 
 	}
-	
+
 	@Override
 	public boolean emailPDFReport(TimeClockingDetails timeClockingDetails) {
-		TimeClockingUserDetails timeClockingUserDetailsObject=timeClockingUserRepository.chcekForDuplicateUsers(timeClockingDetails.getUserName()).get(0);
-		emailService.sendEmailWithAttachment(timeClockingUserDetailsObject.getEmail(),"Your Wage Report","Hi "+timeClockingUserDetailsObject.getUserName()+",\n\nPlease find your wage report for the period specified.\nThanks & Regards,\n\nAdministrator.",generatePDFReport(timeClockingDetails),"WageReport.pdf");
-		return true;	
+		TimeClockingUserDetails timeClockingUserDetailsObject = timeClockingUserRepository
+				.chcekForDuplicateUsers(timeClockingDetails.getUserName()).get(0);
+		emailService.sendEmailWithAttachment(timeClockingUserDetailsObject.getEmail(), "Your Wage Report", "Hi "
+				+ timeClockingUserDetailsObject.getUserName()
+				+ ",\n\nPlease find your wage report for the period specified.\nThanks & Regards,\n\nAdministrator.",
+				generatePDFReport(timeClockingDetails), "WageReport.pdf");
+		return true;
 	}
 
-	
+	@Override
+	@Scheduled(cron = "0 55 11 1 4 6")
+	public void generateWeeklyScheduledReport() {
+		System.out.println("Executed");
+		LocalDate currentDate = LocalDate.now();
+		LocalDate nextSunday = currentDate.with(DayOfWeek.SUNDAY);
+		if (currentDate.getDayOfWeek() != DayOfWeek.SUNDAY) {
+			nextSunday = nextSunday.plusWeeks(1);
+		}
+
+		List<TimeClockingUserDetails> timeClockingUserDetailsList = timeClockingUserRepository.findAll();
+		for (TimeClockingUserDetails tcdu : timeClockingUserDetailsList) {
+			TimeClockingDetails tcd = new TimeClockingDetails();
+			tcd.setUserName(tcdu.getUserName());
+			tcd.setStartDate(Date.valueOf(nextSunday.minusDays(7)));
+			tcd.setEndDate(Date.valueOf(nextSunday));
+			emailPDFReport(tcd);
+
+		}
+	}
+
 	public int timeToMinutes(Time time) {
 		LocalTime localTime = time.toLocalTime();
 		int hours = localTime.getHour();
@@ -171,6 +225,5 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 	public String printDashes() {
 		return "----------------------------------------------------------------------------------------------------------------------------------------------";
 	}
-
 
 }
