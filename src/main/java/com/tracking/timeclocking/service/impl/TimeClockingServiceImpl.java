@@ -104,7 +104,7 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 		
 	    Calendar cal = Calendar.getInstance();
 	    cal.setTime(timeClockingDetails.getDateWorked());
-	    cal.add(Calendar.DAY_OF_YEAR, 1);
+	    //cal.add(Calendar.DAY_OF_YEAR, 1);
 	    java.util.Date utilDate = cal.getTime();
         java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
 	    timeClockingDetails.setDateWorked(sqlDate);
