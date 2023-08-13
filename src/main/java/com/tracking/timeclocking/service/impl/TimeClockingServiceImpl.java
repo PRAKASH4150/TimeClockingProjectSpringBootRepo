@@ -121,7 +121,7 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 				duration.minusHours(duration.toHours()).toMinutes())));
 		timeClockingRepository.updateUserNameById(timeClockingDetails.getDateWorked(),
 				timeClockingDetails.getDayWorked(), timeClockingDetails.getCheckIn(), timeClockingDetails.getCheckOut(),
-				timeClockingDetails.getLocation(),timeClockingDetails.getTotalHoursWorked(), timeClockingDetails.getSerialNo());
+				timeClockingDetails.getLocation(),timeClockingDetails.getPaymentStatus(),timeClockingDetails.getTotalHoursWorked(), timeClockingDetails.getSerialNo());
 		return timeClockingDetails;
 	}
 
@@ -144,7 +144,7 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 			document.add(new Paragraph(printDashes(), headerFont));
 			document.add(new Paragraph());
 
-			PdfPTable table = new PdfPTable(7);
+			PdfPTable table = new PdfPTable(8);
 
 			table.setWidthPercentage(100);
 			table.setSpacingBefore(10f);
@@ -157,7 +157,8 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 			table.addCell(new PdfPCell(new Phrase("LOCATION", headerFont)));
 			table.addCell(new PdfPCell(new Phrase("HRS WORKED", headerFont)));
 			table.addCell(new PdfPCell(new Phrase("TOTAL WAGE($)", headerFont)));
-
+			table.addCell(new PdfPCell(new Phrase("PAYMENT STATUS", headerFont)));
+			
 			for (TimeClockingDetails tcd : timeClockingDetailsRangeList) {
 				table.addCell(new PdfPCell(new Phrase(tcd.getDateWorked() + "", bodyFont)));
 				table.addCell(new PdfPCell(new Phrase(tcd.getDayWorked(), bodyFont)));
@@ -166,6 +167,7 @@ public class TimeClockingServiceImpl implements TimeClockingService {
 				table.addCell(new PdfPCell(new Phrase(tcd.getLocation() + "", bodyFont)));
 				table.addCell(new PdfPCell(new Phrase(tcd.getTotalHoursWorked() + "", bodyFont)));
 				table.addCell(new PdfPCell(new Phrase(tcd.getTotalWageAmount() + "", bodyFont)));
+				table.addCell(new PdfPCell(new Phrase(tcd.getPaymentStatus() + "", bodyFont)));
 				totalWageAmount = totalWageAmount + tcd.getTotalWageAmount();
 			}
 			document.add(table);

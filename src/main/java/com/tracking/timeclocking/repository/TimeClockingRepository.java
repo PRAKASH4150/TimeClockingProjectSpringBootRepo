@@ -22,8 +22,8 @@ public interface TimeClockingRepository extends JpaRepository<TimeClockingDetail
 	
 	@Modifying
     @Query("UPDATE TimeClockingDetails tcd SET tcd.dateWorked=:dateWorked, tcd.dayWorked=:dayWorked,tcd.checkIn=:checkIn,tcd.checkOut=:checkOut,"
-    		+ "tcd.location=:location, tcd.totalHoursWorked=:totalHoursWorked where tcd.serialNo=:serialNo")
+    		+ "tcd.location=:location,tcd.paymentStatus=:paymentStatus,tcd.totalHoursWorked=:totalHoursWorked where tcd.serialNo=:serialNo")
     void updateUserNameById(@Param("dateWorked") Date dateWorked, @Param("dayWorked") String dayWorked,@Param("checkIn")Time checkIn,
-    		@Param("checkOut")Time checkOut,@Param("location") String location,@Param("totalHoursWorked")Time totalHoursWorked,@Param("serialNo") Integer serialNo);
+    		@Param("checkOut")Time checkOut,@Param("location") String location,@Param("paymentStatus") String paymentStatus,@Param("totalHoursWorked")Time totalHoursWorked,@Param("serialNo") Integer serialNo);
 	
 }

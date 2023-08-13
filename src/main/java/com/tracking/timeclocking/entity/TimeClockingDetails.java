@@ -46,6 +46,9 @@ public class TimeClockingDetails {
 	@Column(name="total_hours_worked")
 	private Time totalHoursWorked;
 	
+	@Column(name="payment_status")
+	private String paymentStatus;
+	
 	@Transient
 	private Date startDate;
 	
@@ -64,11 +67,10 @@ public class TimeClockingDetails {
 	@Transient 
 	private boolean emailStatus;
 	
-	
 
 	public TimeClockingDetails(Integer serialNo, String userName, String dayWorked, Date dateWorked, Time checkIn,
-			Time checkOut, String location, Time totalHoursWorked, Date startDate, Date endDate, double wagePerHour,
-			double totalWageAmount, boolean reportGeneration, boolean emailStatus) {
+			Time checkOut, String location, Time totalHoursWorked, String paymentStatus, Date startDate, Date endDate,
+			double wagePerHour, double totalWageAmount, boolean reportGeneration, boolean emailStatus) {
 		super();
 		this.serialNo = serialNo;
 		this.userName = userName;
@@ -78,6 +80,7 @@ public class TimeClockingDetails {
 		this.checkOut = checkOut;
 		this.location = location;
 		this.totalHoursWorked = totalHoursWorked;
+		this.paymentStatus = paymentStatus;
 		this.startDate = startDate;
 		this.endDate = endDate;
 		this.wagePerHour = wagePerHour;
@@ -200,6 +203,14 @@ public class TimeClockingDetails {
 
 	public void setEmailStatus(boolean emailStatus) {
 		this.emailStatus = emailStatus;
+	}
+
+	public String getPaymentStatus() {
+		return paymentStatus;
+	}
+
+	public void setPaymentStatus(String paymentStatus) {
+		this.paymentStatus = paymentStatus;
 	}
 
 	
